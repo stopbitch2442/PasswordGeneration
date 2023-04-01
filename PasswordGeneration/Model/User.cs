@@ -25,13 +25,17 @@ public  class User
         Console.WriteLine("Введите Фамилию");
         user.LastName = Console.ReadLine();
 
+        string FirstName = user.FirstName.ToLower();
+        string LastName = user.LastName.ToLower();
+
         Translit translit= new Translit();
-        string FirstNameTranslit = translit.TranslitFileName(user.FirstName);
-        string LastNameTranslit = translit.TranslitFileName(user.LastName);
+        string FirstNameTranslit = translit.TranslitFileName(FirstName);
+        string LastNameTranslit = translit.TranslitFileName(LastName);
 
         user.Login = FirstNameTranslit + "_" + LastNameTranslit; // логин это транслит Имя + _ + фамилия
+        
 
-        RandomizeFourWordForPassword randomizeFourWordForPassword = new RandomizeFourWordForPassword();
+    RandomizeFourWordForPassword randomizeFourWordForPassword = new RandomizeFourWordForPassword();
         string WordsPassword = randomizeFourWordForPassword.GenerateWordsForPassword();
          
 

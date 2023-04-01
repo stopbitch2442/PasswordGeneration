@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Globalization;
 
 namespace PasswordGeneration.Model
 {
@@ -67,6 +67,7 @@ namespace PasswordGeneration.Model
                     if (dictionaryChar.TryGetValue(ch.ToString(), out ss))
                     {
                         result += ss;
+
                     }
                     // иначе добавляем тот же символ
                     else result += ch;
