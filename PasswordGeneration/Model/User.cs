@@ -1,4 +1,5 @@
-﻿using PasswordGeneration.Model;
+﻿using PasswordGeneration;
+using PasswordGeneration.Model;
 using static PasswordGeneration.Model.TranslateName;
 
 public  class User
@@ -28,10 +29,14 @@ public  class User
         string FirstNameTranslit = translit.TranslitFileName(user.FirstName);
         string LastNameTranslit = translit.TranslitFileName(user.LastName);
 
-        user.Login = FirstNameTranslit + "_" + LastNameTranslit;
+        user.Login = FirstNameTranslit + "_" + LastNameTranslit; // логин это транслит Имя + _ + фамилия
+
+        RandomizeFourWordForPassword randomizeFourWordForPassword = new RandomizeFourWordForPassword();
+        string WordsPassword = randomizeFourWordForPassword.GenerateWordsForPassword();
+         
 
 
-        user.Password = random.NextInt64(10,99).ToString();
+        user.Password =  random.NextInt64(10,99).ToString() + WordsPassword; // пароль это рандомное число + 4 рандомных слова транслитом
 
         Console.WriteLine($"Данные о пользователе:\n" +
             $"Guid:{user.Guid},Имя:{user.FirstName},Фамилия:{user.LastName},Логин:{user.Login},Пароль:{user.Password}");
