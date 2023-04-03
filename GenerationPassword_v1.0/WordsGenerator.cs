@@ -11,8 +11,6 @@ namespace GenerationPassword_v1._0
     {
         private readonly Random random = new();
 
-
-
         private readonly List<string> PasswordFirstWord = new()
         {
     "Диких",
@@ -68,12 +66,8 @@ namespace GenerationPassword_v1._0
     "Цепочку",
     "Бриллиант"
         };
-
-
         public void GeneratePasswordWithoutTranslite(out string passwordResultWithoutFormatting, out string passwordResultTranslited)
         {
-
-
             var number = random.NextInt64(10, 99);
 
             var firstWord = random.Next(PasswordFirstWord.Count);
@@ -94,5 +88,6 @@ namespace GenerationPassword_v1._0
 
 
         }
+
     }
 }
