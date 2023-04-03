@@ -8,10 +8,7 @@ public  class User
     string FirstName{ get; set; }
     string LastName { get; set; }
     string Login { get; set; }
-    
-    int Age { get; set; }
     string Password { get; set; }
-    string Email { get; set; }
 
     public static void GeneratedDataForUser()
     {
@@ -32,17 +29,19 @@ public  class User
         string FirstNameTranslit = translit.TranslitFileName(FirstName);
         string LastNameTranslit = translit.TranslitFileName(LastName);
 
-        user.Login = FirstNameTranslit + "_" + LastNameTranslit; // логин это транслит Имя + _ + фамилия
+        user.Login = FirstNameTranslit.Substring(0, 2) + "_" + LastNameTranslit; // логин это транслит Имя + _ + фамилия
         
 
     RandomizeFourWordForPassword randomizeFourWordForPassword = new RandomizeFourWordForPassword();
         string WordsPassword = randomizeFourWordForPassword.GenerateWordsForPassword();
-         
+        string WordsPasswordResult = WordsPassword.ToLower();
 
+        WordsPasswordResult = translit.TranslitFileName(WordsPasswordResult);
+        string Random = random.NextInt64(10, 99).ToString();
+        user.Password =  Random + WordsPasswordResult; // пароль это рандомное число + 4 рандомных слова транслитом
 
-        user.Password =  random.NextInt64(10,99).ToString() + WordsPassword; // пароль это рандомное число + 4 рандомных слова транслитом
-
+        
         Console.WriteLine($"Данные о пользователе:\n" +
-            $"Guid:{user.Guid},Имя:{user.FirstName},Фамилия:{user.LastName},Логин:{user.Login},Пароль:{user.Password}");
+            $"Guid:{user.Guid},Имя:{user.FirstName},Фамилия:{user.LastName},Логин:{user.Login},Пароль:{user.Password},Пароль в транслите:{Random + WordsPassword}");
     }
 }
