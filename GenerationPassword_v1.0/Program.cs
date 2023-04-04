@@ -6,8 +6,7 @@ public class Program
     public static void Main(string[] args)
     {
         var wordsGenerator = new WordsGenerator();
-       string passwordWithoutFormatting = wordsGenerator.GeneratePasswordWithoutTranslite();
-
+        string passwordWithoutFormatting = wordsGenerator.GeneratePasswordWithoutTranslite();
         string passwordTranslited = DictionaryTranslite.ConvertToLatin(passwordWithoutFormatting);
 
         Console.WriteLine(passwordWithoutFormatting, passwordTranslited);

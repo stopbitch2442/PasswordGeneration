@@ -96,6 +96,11 @@ namespace GenerationPassword_v1._0
                 result.Append(ConvertedLetters[letter]);
             }
             return result.ToString();
+
         }
+
+
+
+
     }
 }
