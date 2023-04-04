@@ -8,8 +8,8 @@ namespace GenerationPassword_v1._0
 {
     public class DictionaryTranslite
     {
-        public static readonly Dictionary<char, string> ConvertedLetters = new Dictionary<char, string>
-    {
+        public static readonly Dictionary<char, string> ConvertedLetters = new()
+        {
         {'а', "a"},
         {'б', "b"},
         {'в', "v"},

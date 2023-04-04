@@ -8,11 +8,14 @@ namespace GenerationPassword_v1._0.Model
 {
     public class User
     {
-        Guid Guid { get; set; }
-        string FirstName { get; set; }
-        string LastName { get; set; }
-        string Login { get; set; }
-        string Password { get; set; }
-
+        public Guid Guid { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public string PasswordTranslite { get; set; }
+      
     }
+
+    
 }

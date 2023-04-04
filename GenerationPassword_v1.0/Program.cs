@@ -1,15 +1,15 @@
 ﻿using GenerationPassword_v1._0;
+using GenerationPassword_v1._0.Model;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        string passwordResultWithoutFormatting, passwordResultTranslited;
+        var wordsGenerator = new WordsGenerator();
+       string passwordWithoutFormatting = wordsGenerator.GeneratePasswordWithoutTranslite();
 
-        WordsGenerator wordsGenerator = new WordsGenerator();
+        string passwordTranslited = DictionaryTranslite.ConvertToLatin(passwordWithoutFormatting);
 
-        wordsGenerator.GeneratePasswordWithoutTranslite(out passwordResultWithoutFormatting,out passwordResultTranslited);
-       
-        Console.WriteLine(passwordResultWithoutFormatting,passwordResultTranslited);
+        Console.WriteLine(passwordWithoutFormatting, passwordTranslited);
     }
 }
