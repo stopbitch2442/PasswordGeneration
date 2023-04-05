@@ -66,29 +66,29 @@ namespace GenerationPassword_v1._0
     "Цепочку",
     "Бриллиант"
         };
+        
         public string GeneratePasswordWithoutTranslite()
         {
          
             var number = random.NextInt64(10, 99);
 
-            var firstWord = random.Next(PasswordFirstWord.Count);
-            var password = PasswordFirstWord[firstWord];
+            var FirstWord = random.Next(PasswordFirstWord.Count);
+            var passwordFirstWord = PasswordFirstWord[FirstWord];
 
-            var index1 = random.Next(PasswordSecondWord.Count);
-            var password1 = PasswordSecondWord[index1];
+            var SecondWord = random.Next(PasswordSecondWord.Count);
+            var passwordSecondWord = PasswordSecondWord[SecondWord];
             
-            var index2 = random.Next(PasswordThirdWord.Count);
-            var password2 = PasswordThirdWord[index2];
+            var ThirdWord = random.Next(PasswordThirdWord.Count);
+            var passwordThirdWord = PasswordThirdWord[ThirdWord];
 
-            var index3 = random.Next(PasswordFourWord.Count);
-            var password3 = PasswordFourWord[index3];
+            var FourWord = random.Next(PasswordFourWord.Count);
+            var passwordFourWord = PasswordFourWord[FourWord];
 
-            string passwordWithoutFormatting = number + password + password1 + password2 + password3;
+            string passwordWithoutFormatting = number + passwordFirstWord + passwordSecondWord + passwordThirdWord + passwordFourWord;
+
+            
+
             return passwordWithoutFormatting;
-
-       
-           
         }
-
     }
 }

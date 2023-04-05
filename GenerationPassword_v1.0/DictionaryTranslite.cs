@@ -99,8 +99,20 @@ namespace GenerationPassword_v1._0
 
         }
 
+        public static string SplitConvertPassword(string sourse) 
+        {
+            string result = sourse;
+            string password = null;
+            foreach (char letter in sourse)
+            {
+                if (Char.IsUpper(letter))
+                {
+                    password += result.Substring(2, 3);
+                }
+            }
+            return password;
 
-
+        }
 
     }
 }
