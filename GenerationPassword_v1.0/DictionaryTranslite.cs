@@ -99,20 +99,22 @@ namespace GenerationPassword_v1._0
 
         }
 
-        public static string SplitConvertPassword(string sourse) 
+        public static string SplitConvertPassword(string sourse) //99AaaBbbCccDdd
         {
-            string result = sourse;
-            string password = null;
-            foreach (char letter in sourse)
+            string input = sourse;
+            string output = sourse.Substring(0, 2);
+
+            for (int i = 2; i < input.Length; i++)
             {
-                if (Char.IsUpper(letter))
+                if (i == 2 || (i > 2 && char.IsUpper(input[i]) && !char.IsUpper(input[i - 1])))
                 {
-                    password += result.Substring(2, 3);
+                    output += input.Substring(i, 3);
                 }
+                
             }
-            return password;
+            return output;
 
         }
-
     }
 }
+
