@@ -86,8 +86,6 @@ namespace GenerationPassword_v1._0
 
             string passwordWithoutFormatting = number + passwordFirstWord + passwordSecondWord + passwordThirdWord + passwordFourWord;
 
-            
-
             return passwordWithoutFormatting;
         }
     }
