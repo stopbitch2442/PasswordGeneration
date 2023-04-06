@@ -14,7 +14,8 @@ namespace GenerationPassword_v1._0.Model
         public string Login { get; set; }
         public string PasswordWithoutTranslite { get; set; }
         public string PasswordTranslite { get; set; }
-      
+        public string PasswordWithFormatting { get; set; }
+
     }
 
     

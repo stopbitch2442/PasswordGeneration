@@ -99,7 +99,7 @@ namespace GenerationPassword_v1._0
 
         }
 
-        public static string SplitConvertPassword(string sourse) //99AaaBbbCccDdd
+        public static string SplitConvertPassword(string sourse) //Output: 99AaaBbbCccDdd
         {
             string input = sourse;
             string output = sourse.Substring(0, 2);
@@ -110,11 +110,17 @@ namespace GenerationPassword_v1._0
                 {
                     output += input.Substring(i, 3);
                 }
-                
             }
             return output;
-
         }
+
+        public  string BuildLogin(string firstName,string lastName)
+        {
+            string login = ConvertToLatin(lastName).ToLower() + "_" + ConvertToLatin(firstName).Substring(0,2).ToLower();
+        
+            return login;
+        }
+
     }
 }
 
