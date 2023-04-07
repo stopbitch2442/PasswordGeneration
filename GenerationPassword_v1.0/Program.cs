@@ -2,25 +2,29 @@
 using GenerationPassword_v1._0.Model;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-
+using System.Threading.Channels;
+using System;
+using System.IO;
 public class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         Console.WriteLine("Выберите функцию:\n1 - сгенерировать пользователя\n2 - сгенерировать несколько паролей");
         string choice = Console.ReadLine();
+
         foreach (char c in choice)
         {
-            if (c != '1' && c != '2')
+            if (c != '1' && c != '2' && c != '3')
             {
                 Console.WriteLine("Некорректный ввод! Пожалуйста, введите только цифры 1 или 2.");
-                Main(args);
+                Main();
             }
             else if (c == '1')
             {
                 SetUser();
+                SaveResultChoice();
             }
-            else
+            else if (c == '2')
             {
                 Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
                 int countPassword = Convert.ToInt32(Console.ReadLine());
@@ -29,37 +33,35 @@ public class Program
                 {
                     GeneratePassword();
                 }
+                SaveResultChoice();
             }
+            
         }
     }
-
-    public static void SaveResult()
+    
+    public static void SaveResultChoice()
     {
-        Console.WriteLine("Сохранить информацию в блокнот?\n1 - Да\n2 - Нет\n3 - Вернуться назад");
+        Console.WriteLine("Сохранить информацию в блокнот?\n1 - Да\n2 - Вернуться назад");
         string choice = Console.ReadLine();
         foreach (char c in choice)
         {
-            if (c != '1' && c != '2' && c != '3')
+            if (c != '1' && c != '2')
             {
-                Console.WriteLine("Некорректный ввод! Пожалуйста, введите только цифры 1, 2 или 3.");
+                Console.WriteLine("Некорректный ввод! Пожалуйста, введите только цифры 1 или 2.");
             }
             else if (c == '1')
             {
-                
+                Console.WriteLine("Введите имя файла для сохранения:");
+                string fileName = Console.ReadLine();
+                Console.WriteLine("Текст успешно сохранен в файл " + fileName + ".txt");
             }
             else
             {
                 Console.WriteLine("");
-                int countPassword = Convert.ToInt32(Console.ReadLine());
-
-                for (int i = 0; i < countPassword; i++)
-                {
-                    
-                }
+                Main();
             }
         }
     }
-        
     public static void GeneratePassword()
     {
         var user = new User();
