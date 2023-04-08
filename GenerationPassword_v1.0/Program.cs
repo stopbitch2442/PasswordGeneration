@@ -7,16 +7,25 @@ using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics.CodeAnalysis;
-
+using System.ComponentModel;
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
 
     public enum ChoiceMethod
     {
+        [Description("сгенерировать пользователя")]
         GenerateUser = 1,
+        [Description("сгенерировать несколько паролей")]
         GeneratePassword = 2
     }
+    public enum SaveChoiceMethod
+    {
+        SaveResult = 1,
+        GoBack = 2
+    }
+
+    
 
     public static ChoiceMethod ValidateChoiceMethod([AllowNull] string choiceString)
     {
@@ -36,19 +45,22 @@ public class Program
             throw new Exception("Такого варианта еще нет в программе :(");
         }
     }
+    
     public static void Main()
     {
-
-
-
-        while (true)
+         while (true)
         {
             _outputStrings.Clear();
-            // Загуглить как получить текстовое представление енамок и подстаавлять их сюда типо "Выберите функцию:\n 1 {ChoiceMethod.GenerateUser.Description}"
-            // Следующий шаг - выводить их через for Типо. cw("Выберите функцию:") и потом в форе или фориче выводить описание енамок
+            // Загуглить как получить текстовое представление енамок и подстаавлять их сюда типо "Выберите функцию:\n 1 {ChoiceMethod.GenerateUser.Description}"  +
+            // Следующий шаг - выводить их через for Типо. cw("Выберите функцию:") и потом в форе или фориче выводить описание енамок +
             // Следующий шаг - сделать общий метод для всех енамок, чтобы автоматически выводились все их варианты
             // Все нужно автоматизировать и повторяющегося кода быть не должно)
-            Console.WriteLine("Выберите функцию:\n1 - сгенерировать пользователя\n2 - сгенерировать несколько паролей");
+            
+            Console.WriteLine($"Выберите функцию:");
+            foreach (ChoiceMethod value in Enum.GetValues(typeof(ChoiceMethod)))
+            {
+                Console.WriteLine((int)value + " - " + value.GetDescription());
+            }
             ChoiceMethod? choice;
             // То же самое - общий метод для выбора варианта из любой енамки должен быть
             // TryException тоже желательно утащить в другой метод. До нас должно дойти только значение енамки
@@ -90,6 +102,8 @@ public class Program
         }
     }
     // Подумай о разделении ответственности, метод должен делать что-то одно простое, или же вызывать много простых методов, передавая результаты каждого, создавая эдакий конвейер, как в факторио
+   
+
     public static void SaveResultChoice()
     {
         // Эту штуку тоже надо перегнать в енамку с выборами (впоследствии переведем все это в ООП)
