@@ -76,7 +76,7 @@ public class Program
         using (StreamWriter writer = new StreamWriter(fileName + ".txt", true))
         {
             Console.SetOut(writer);
-            SetUser();
+            // чё тут написать чтобы выводимые значения мейн в streanwriter прилетали?
         }
         Console.WriteLine("Файл " + fileName + ".txt Успешно сохранён" );
     }
