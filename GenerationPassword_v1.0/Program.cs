@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
+
 public class Program
 {
     public static void Main()
@@ -29,6 +31,8 @@ public class Program
                 Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
                 int countPassword = Convert.ToInt32(Console.ReadLine());
 
+                TextWriter oldOut = Console.Out;
+
                 for (int i = 0; i < countPassword; i++)
                 {
                     GeneratePassword();
@@ -51,9 +55,7 @@ public class Program
             }
             else if (c == '1')
             {
-                Console.WriteLine("Введите имя файла для сохранения:");
-                string fileName = Console.ReadLine();
-                Console.WriteLine("Текст успешно сохранен в файл " + fileName + ".txt");
+                FlowSave(FileNaming());
             }
             else
             {
@@ -62,6 +64,25 @@ public class Program
             }
         }
     }
+
+    public static string FileNaming()
+    {
+        Console.WriteLine("Введите имя файла для сохранения:");
+        string fileName = Console.ReadLine();
+        return fileName;
+    }
+    public static void FlowSave(string fileName)
+    {
+        using (StreamWriter writer = new StreamWriter(fileName + ".txt", true))
+        {
+            Console.SetOut(writer);
+            SetUser();
+        }
+        Console.WriteLine("Файл " + fileName + ".txt Успешно сохранён" );
+    }
+
+
+
     public static void GeneratePassword()
     {
         var user = new User();
