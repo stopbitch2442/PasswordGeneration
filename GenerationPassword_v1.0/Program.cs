@@ -45,7 +45,15 @@ public class Program
             throw new Exception("Такого варианта еще нет в программе :(");
         }
     }
-    
+    public static void PrintEnumValue(Enum enums)
+    {
+        foreach (var value in Enum.GetValues(enums.GetType()))
+        {
+            string description = ((Enum)value).GetDescription();
+            Console.WriteLine($"{(int)value} - {description}");
+        }
+    }
+
     public static void Main()
     {
          while (true)
@@ -57,11 +65,9 @@ public class Program
             // Все нужно автоматизировать и повторяющегося кода быть не должно)
             
             Console.WriteLine($"Выберите функцию:");
-            foreach (ChoiceMethod value in Enum.GetValues(typeof(ChoiceMethod)))
-            {
-                Console.WriteLine((int)value + " - " + value.GetDescription());
-            }
+
             ChoiceMethod? choice;
+            PrintEnumValue(ChoiceMethod.GenerateUser);
             // То же самое - общий метод для выбора варианта из любой енамки должен быть
             // TryException тоже желательно утащить в другой метод. До нас должно дойти только значение енамки
             try
