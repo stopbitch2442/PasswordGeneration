@@ -8,6 +8,8 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
+using System.IO.Enumeration;
+
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
@@ -21,11 +23,13 @@ public class Program
     }
     public enum SaveChoiceMethod
     {
+        [Description("Сохранить результат")]
         SaveResult = 1,
+        [Description("Вернуться назад")]
         GoBack = 2
     }
 
-    
+
 
     public static ChoiceMethod ValidateChoiceMethod([AllowNull] string choiceString)
     {
@@ -56,19 +60,15 @@ public class Program
 
     public static void Main()
     {
-         while (true)
+        while (true)
         {
             _outputStrings.Clear();
-            // Загуглить как получить текстовое представление енамок и подстаавлять их сюда типо "Выберите функцию:\n 1 {ChoiceMethod.GenerateUser.Description}"  +
-            // Следующий шаг - выводить их через for Типо. cw("Выберите функцию:") и потом в форе или фориче выводить описание енамок +
-            // Следующий шаг - сделать общий метод для всех енамок, чтобы автоматически выводились все их варианты
-            // Все нужно автоматизировать и повторяющегося кода быть не должно)
-            
+
             Console.WriteLine($"Выберите функцию:");
 
             ChoiceMethod? choice;
             PrintEnumValue(ChoiceMethod.GenerateUser);
-            // То же самое - общий метод для выбора варианта из любой енамки должен быть
+
             // TryException тоже желательно утащить в другой метод. До нас должно дойти только значение енамки
             try
             {
@@ -80,7 +80,7 @@ public class Program
                 continue;
             }
             // Впоследствии - нуужно будет сделать метод, который сначала выведет описание енамки, затем будет ожидать ввода пользователя и возвращать нам уже проверенную хорошую енам очку
-            
+
             // Это тоже можно зарефачить но в виде ООП. Представь, что каждое значение из енамки - команда. Это объект.
             // У объекта метод допустим Execute(), в котором и есть вся логика этой команду
             // И у генерации пароля и пользователя этот метод будет с одинаковым названиями, ведь они оба - команда. Это сообщает нам о родстве и необходимости использовать
@@ -108,31 +108,40 @@ public class Program
         }
     }
     // Подумай о разделении ответственности, метод должен делать что-то одно простое, или же вызывать много простых методов, передавая результаты каждого, создавая эдакий конвейер, как в факторио
-   
 
     public static void SaveResultChoice()
     {
-        // Эту штуку тоже надо перегнать в енамку с выборами (впоследствии переведем все это в ООП)
-        Console.WriteLine("Сохранить информацию в блокнот?\n1 - Да\n2 - Вернуться назад");
-        string choice = Console.ReadLine();
-        // Никакого ForEach, только вся введенная строка и попытка получить из них енамки
-        foreach (char c in choice)
+        Console.WriteLine("Сохранить информацию в блокнот?");
+        PrintEnumValue(SaveChoiceMethod.SaveResult);
+
+        try
         {
-            if (c != '1' && c != '2')
+            var userInput = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(userInput))
             {
-                Console.WriteLine("Некорректный ввод! Пожалуйста, введите только цифры 1 или 2.");
+                throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
-            else if (c == '1')
+            var saveChoice = (SaveChoiceMethod)ValidateChoiceMethod(userInput);
+
+            if (saveChoice == SaveChoiceMethod.SaveResult)
             {
-                FlowSave(FileNaming());
+                
+               FlowSave(FileNaming());
+
+            }
+            else if (saveChoice == SaveChoiceMethod.GoBack)
+            {
+                Main();
             }
             else
             {
-                Console.WriteLine("");
-                // Плохо бесконечно вызывать рекурсию, почитай про переполнение CallStack'а, ведь при вызове рекурсии снова и снова, память засоряется и очистке не подлежит
-                // Выше уже было решение без рекурсии, его, кстати, можно оптимизировать)
-                Main();
+                throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            SaveResultChoice();
         }
     }
 
