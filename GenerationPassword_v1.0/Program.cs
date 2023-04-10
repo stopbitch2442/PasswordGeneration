@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
 using System.IO.Enumeration;
+using System.Linq.Expressions;
 
 public class Program
 {
@@ -49,12 +50,30 @@ public class Program
             throw new Exception("Такого варианта еще нет в программе :(");
         }
     }
+
+
+
     public static void PrintEnumValue(Enum enums)
     {
         foreach (var value in Enum.GetValues(enums.GetType()))
         {
             string description = ((Enum)value).GetDescription();
             Console.WriteLine($"{(int)value} - {description}");
+        }
+    }
+    private static ChoiceMethod TryException()
+    {
+        while (true)
+        {
+            try
+            {
+                return ValidateChoiceMethod(Console.ReadLine());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                continue;
+            }
         }
     }
 
@@ -65,22 +84,10 @@ public class Program
             _outputStrings.Clear();
 
             Console.WriteLine($"Выберите функцию:");
-
-            ChoiceMethod? choice;
             PrintEnumValue(ChoiceMethod.GenerateUser);
 
-            // TryException тоже желательно утащить в другой метод. До нас должно дойти только значение енамки
-            try
-            {
-                choice = ValidateChoiceMethod(Console.ReadLine());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                continue;
-            }
-            // Впоследствии - нуужно будет сделать метод, который сначала выведет описание енамки, затем будет ожидать ввода пользователя и возвращать нам уже проверенную хорошую енам очку
-
+            ChoiceMethod choice = TryException();
+            
             // Это тоже можно зарефачить но в виде ООП. Представь, что каждое значение из енамки - команда. Это объект.
             // У объекта метод допустим Execute(), в котором и есть вся логика этой команду
             // И у генерации пароля и пользователя этот метод будет с одинаковым названиями, ведь они оба - команда. Это сообщает нам о родстве и необходимости использовать
@@ -88,11 +95,14 @@ public class Program
             // С.е. нужно перетащить все это в ООП, но только после того, как зарефачишь остальные места
             if (choice == ChoiceMethod.GenerateUser)
             {
+                
                 SetUser();
                 SaveResultChoice();
+                
             }
             else if (choice == ChoiceMethod.GeneratePassword)
             {
+                
                 Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
                 // Любые входные данные в приложение должны быть проверены. Пример был выше
                 int countPassword = Convert.ToInt32(Console.ReadLine());
@@ -104,9 +114,11 @@ public class Program
                 }
                 SaveResultChoice();
             }
-
         }
     }
+
+
+
     // Подумай о разделении ответственности, метод должен делать что-то одно простое, или же вызывать много простых методов, передавая результаты каждого, создавая эдакий конвейер, как в факторио
 
     public static void SaveResultChoice()
@@ -127,11 +139,12 @@ public class Program
             {
                 
                FlowSave(FileNaming());
-
+                _outputStrings.Clear();
             }
             else if (saveChoice == SaveChoiceMethod.GoBack)
             {
                 Main();
+                _outputStrings.Clear();
             }
             else
             {
