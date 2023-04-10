@@ -32,7 +32,7 @@ public class Program
 
 
 
-    public static ChoiceMethod ValidateChoiceMethod([AllowNull] string choiceString)
+    public static T ValidateChoiceMethod<T>([AllowNull] string choiceString) : Enum
     {
         if (!int.TryParse(choiceString, out int choiceInt))
         {
@@ -128,12 +128,12 @@ public class Program
 
         try
         {
-            var userInput = Console.ReadLine();
+            string userInput = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(userInput))
             {
                 throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
-            var saveChoice = (SaveChoiceMethod)ValidateChoiceMethod(userInput);
+            var saveChoice = ValidateChoiceMethod<SaveChoiceMethod>(userInput);
 
             if (saveChoice == SaveChoiceMethod.SaveResult)
             {
