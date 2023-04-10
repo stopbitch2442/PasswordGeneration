@@ -53,9 +53,9 @@ public class Program
 
 
 
-    public static void PrintEnumValue(Enum enums)
+    public static void PrintEnumValue<T>() where T: Enum
     {
-        foreach (var value in Enum.GetValues(enums.GetType()))
+        foreach (var value in Enum.GetValues(typeof(T)))
         {
             string description = ((Enum)value).GetDescription();
             Console.WriteLine($"{(int)value} - {description}");
@@ -84,7 +84,7 @@ public class Program
             _outputStrings.Clear();
 
             Console.WriteLine($"Выберите функцию:");
-            PrintEnumValue(ChoiceMethod.GenerateUser);
+            PrintEnumValue<ChoiceMethod>();
 
             ChoiceMethod choice = TryException();
             
@@ -124,7 +124,7 @@ public class Program
     public static void SaveResultChoice()
     {
         Console.WriteLine("Сохранить информацию в блокнот?");
-        PrintEnumValue(SaveChoiceMethod.SaveResult);
+        PrintEnumValue<SaveChoiceMethod>();
 
         try
         {
