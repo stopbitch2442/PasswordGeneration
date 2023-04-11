@@ -31,7 +31,6 @@ public class Program
     {
         if (!int.TryParse(choiceString, out int choiceInt))
         {
-            Console.WriteLine();
             throw new Exception("Разрешается вводить только числа");
         }
 
@@ -43,7 +42,7 @@ public class Program
         catch (Exception)
         {
             throw new Exception("Такого варианта еще нет в программе :(");
-        }   
+        }
     }
 
     public static void PrintEnumValue<T>() where T: Enum
@@ -60,7 +59,6 @@ public class Program
         {
             try
             {
-
                 return ValidateChoiceMethod<ChoiceMethod>(Console.ReadLine());
             }
             catch (Exception ex)
@@ -90,8 +88,8 @@ public class Program
             if (choice == ChoiceMethod.GenerateUser)
             {
                 
-                SetUser();
-                SaveResultChoice();
+                SetUserData.SetUser();
+                SaveResult.SaveResultChoice();
                 
             }
             else if (choice == ChoiceMethod.GeneratePassword)
@@ -103,23 +101,21 @@ public class Program
                 var generatedPasswords = new List<string>();
                 for (int i = 0; i < countPassword; i++)
                 {
-                    _outputStrings.Add(GeneratePassword());
+                    var user = new User();
+                    _outputStrings.Add(GeneratePassword(user));
                 }
-                SaveResultChoice();
+                SaveResult.SaveResultChoice();
             }
         }
     }
-
-
-
-    // Подумай о разделении ответственности, метод должен делать что-то одно простое, или же вызывать много простых методов, передавая результаты каждого, создавая эдакий конвейер, как в факторио
-
-    public static void SaveResultChoice()
+    public class SaveResult
     {
-        Console.WriteLine("Сохранить информацию в блокнот?");
-        PrintEnumValue<SaveChoiceMethod>();
-
-        try
+        public static void PrintSaveResultChoice()
+        {
+            Console.WriteLine("Сохранить информацию в блокнот?");
+            PrintEnumValue<SaveChoiceMethod>();
+        }
+        public static SaveChoiceMethod GetUserInput()
         {
             string userInput = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(userInput))
@@ -127,11 +123,13 @@ public class Program
                 throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
             var saveChoice = ValidateChoiceMethod<SaveChoiceMethod>(userInput);
-
+            return saveChoice;
+        }
+        public static void ProcessUserChoice(SaveChoiceMethod saveChoice)
+        {
             if (saveChoice == SaveChoiceMethod.SaveResult)
             {
-                
-               FlowSave(FileNaming());
+                FlowSave(FileNaming());
                 _outputStrings.Clear();
             }
             else if (saveChoice == SaveChoiceMethod.GoBack)
@@ -144,40 +142,45 @@ public class Program
                 throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
         }
-        catch (Exception ex)
+        public static void SaveResultChoice()
         {
-            Console.WriteLine(ex.Message);
-            Main();
-        }
-    }
-
-    public static string FileNaming()
-    {
-        Console.WriteLine("Введите имя файла для сохранения:");
-        // Прооверяем входные данные)
-        string fileName = Console.ReadLine();
-        return fileName;
-    }
-    public static void FlowSave(string fileName)
-    {
-        // Не должно быть строчек типо ".txt". Почитай про Magic numbers и Magic strings
-        // Подумай о том, как дать пользователю выбрать директорию записи файла 
-        using (var file = new StreamWriter(fileName + ".txt", true))
-        {
-            foreach (var outputString in _outputStrings)
+            PrintSaveResultChoice();
+            try
             {
-                file.WriteLine(outputString);
+                var saveChoice = GetUserInput();
+                ProcessUserChoice(saveChoice);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Main();
             }
         }
-        Console.WriteLine("Файл " + fileName + ".txt Успешно сохранён");
+
+
+        public static string FileNaming()
+        {
+            Console.WriteLine("Введите имя файла для сохранения:");
+            // Прооверяем входные данные)
+            string fileName = Console.ReadLine();
+            return fileName;
+        }
+        public static void FlowSave(string fileName)
+        {
+            // Не должно быть строчек типо ".txt". Почитай про Magic numbers и Magic strings
+            // Подумай о том, как дать пользователю выбрать директорию записи файла 
+            using (var file = new StreamWriter(fileName + ".txt", true))
+            {
+                foreach (var outputString in _outputStrings)
+                {
+                    file.WriteLine(outputString);
+                }
+            }
+            Console.WriteLine("Файл " + fileName + ".txt Успешно сохранён");
+        }
     }
-
-
-
-    public static string GeneratePassword()
+    public static string GeneratePassword(User user)
     {
-        // Зачем GeneratePassword делать юзера?
-        var user = new User();
         var wordsGenerator = new WordsGenerator();
 
         user.PasswordWithoutTranslite = wordsGenerator.GeneratePasswordWithoutTranslite();
@@ -187,29 +190,18 @@ public class Program
         Console.WriteLine(result);
         return result;
     }
-    
-        public static void ValidateLanguageLogin(string userInfo) 
+
+    public static void ValidateLanguageLogin(string userInfo)
+    {
+        var factory = new RankedLanguageIdentifierFactory();
+        var identifier = factory.Load("Core14.profile.xml");
+        var language = identifier.Identify(userInfo).FirstOrDefault()?.Item1.Iso639_2T.ToLower();
+
+        if (language != "rus")
         {
-            try
-            {
-                var factory = new RankedLanguageIdentifierFactory();
-                var identifier = factory.Load("Core14.profile.xml");
-                var languages = identifier.Identify(userInfo);
-                    if (languages.FirstOrDefault()?.Item1.Iso639_2T.ToLower() != "rus")
-                    {
-                    throw new Exception("Вводить необходимо на русском языке.");
-                
-                    }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-        
-            }
+            throw new Exception("Вводить необходимо на русском языке.");
         }
-
-    private static bool isFirstName = true;
-
+    }
     public static string CheckInputLogin()
     {
         while (true)
@@ -219,14 +211,13 @@ public class Program
                 string userInfo = Console.ReadLine();
                 ValidateLanguageLogin(userInfo);
 
-                if (Regex.IsMatch(userInfo, @"^[а-яА-ЯёЁ]+$"))
+                if (!Regex.IsMatch(userInfo, @"^[а-яА-ЯёЁ]+$"))
                 {
-                    return userInfo;
+                    Console.WriteLine("Введите Имя на русском языке");
+                    continue;
                 }
-                else
-                {
-                    return null;
-                }
+
+                return userInfo;
             }
             catch (Exception ex)
             {
@@ -234,48 +225,69 @@ public class Program
             }
         }
     }
+    //public static void SetUser()
+    //{
+    //    var user = new User { Guid = Guid.NewGuid() };
 
-    public static void SetUser()
+    //    Console.WriteLine("Введите Имя");
+    //    user.FirstName = CheckInputLogin();
+
+    //    Console.WriteLine("Введите Фамилию");
+    //    user.LastName = CheckInputLogin();
+
+    //    user.Login = new DictionaryTranslite().BuildLogin(user.FirstName, user.LastName);
+    //    user.PasswordWithoutTranslite = new WordsGenerator().GeneratePasswordWithoutTranslite();
+    //    user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
+    //    user.PasswordWithFormatting = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
+
+    //    _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
+    //    Console.WriteLine(_outputStrings.LastOrDefault());
+    //}
+    public class SetUserData
     {
-        var user = new User();
-        user.Guid = Guid.NewGuid();
-
-        Console.WriteLine("Введите Имя");
-        string firstName = CheckInputLogin();
-        while (firstName == null)
+        public static void SetUser()
         {
-            Console.WriteLine("Введите Имя на русском языке");
-            firstName = CheckInputLogin();
-        }
-        user.FirstName = firstName;
+            var user = new User { Guid = Guid.NewGuid() };
 
-        Console.WriteLine("Введите Фамилию");
-        string lastName = CheckInputLogin();
-        while (lastName == null || !Regex.IsMatch(lastName, @"^[а-яА-ЯёЁ]+$"))
+            user.FirstName = GetUserFirstName();
+            user.LastName = GetUserLastName();
+
+            SetUserCredentials(user);
+
+            _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
+            Console.WriteLine(_outputStrings.LastOrDefault());
+        }
+
+        private static string GetUserFirstName()
         {
-            if (lastName != null && !Regex.IsMatch(lastName, @"^[а-яА-ЯёЁ]+$"))
-            {
-                Console.WriteLine("Введите Фамилию на русском языке");
-            }
-            else
-            {
-                Console.WriteLine("Введите Фамилию");
-            }
-
-            lastName = CheckInputLogin();
+            Console.WriteLine("Введите Имя");
+            return CheckInputLogin();
         }
-        user.LastName = lastName;
 
-        var dictionaryTranslite = new DictionaryTranslite();
-        user.Login = dictionaryTranslite.BuildLogin(user.FirstName, user.LastName);
+        private static string GetUserLastName()
+        {
+            Console.WriteLine("Введите Фамилию");
+            return CheckInputLogin();
+        }
 
-        var wordsGenerator = new WordsGenerator();
-        user.PasswordWithoutTranslite = wordsGenerator.GeneratePasswordWithoutTranslite();
-        user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
-        user.PasswordWithFormatting = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
+        private static void SetUserCredentials(User user)
+        {
+            user.Login = new DictionaryTranslite().BuildLogin(user.FirstName, user.LastName);
+            user.PasswordWithoutTranslite = new WordsGenerator().GeneratePasswordWithoutTranslite();
+            user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
+            user.PasswordWithFormatting = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
+        }
 
-        // Такого быть не должно, это к вопросу об ООП ранее. Это просто две разных команды, должно быть что-то общее
-        _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
-        Console.WriteLine(_outputStrings.LastOrDefault());
+        private static string CheckInputLogin()
+        {
+            string input = Console.ReadLine();
+            while (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine("Пожалуйста, введите корректные данные.");
+                input = Console.ReadLine();
+            }
+            return input;
+        }
     }
+
 }
