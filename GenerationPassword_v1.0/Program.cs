@@ -44,7 +44,7 @@ public class Program
         }
     }
 
-    public static void PrintEnumValue<T>() where T: Enum
+    public static void PrintEnumValue<T>() where T : Enum
     {
         foreach (var value in Enum.GetValues(typeof(T)))
         {
@@ -78,7 +78,7 @@ public class Program
             PrintEnumValue<ChoiceMethod>();
 
             ChoiceMethod choice = CheckChoiceUsers();
-            
+
             // Это тоже можно зарефачить но в виде ООП. Представь, что каждое значение из енамки - команда. Это объект.
             // У объекта метод допустим Execute(), в котором и есть вся логика этой команду
             // И у генерации пароля и пользователя этот метод будет с одинаковым названиями, ведь они оба - команда. Это сообщает нам о родстве и необходимости использовать
@@ -86,14 +86,14 @@ public class Program
             // С.е. нужно перетащить все это в ООП, но только после того, как зарефачишь остальные места
             if (choice == ChoiceMethod.GenerateUser)
             {
-                
+
                 SetUserData.SetUser();
                 SaveResult.SaveResultChoice();
-                
+
             }
             else if (choice == ChoiceMethod.GeneratePassword)
             {
-                
+
                 Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
                 int countPassword = (Int32)ValidateChoiceMethod<ChoiceMethod>(Console.ReadLine());
 
@@ -194,6 +194,7 @@ public class Program
             }
         }
     }
+ 
     public static string GeneratePassword(User user)
     {
         var wordsGenerator = new WordsGenerator();
