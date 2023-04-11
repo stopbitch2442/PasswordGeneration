@@ -5,7 +5,6 @@ using System.ComponentModel;
 using NTextCat;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
@@ -129,7 +128,7 @@ public class Program
         {
             if (saveChoice == SaveChoiceMethod.SaveResult)
             {
-                FlowSave(FileNaming());
+                SaveToFile(FileNaming());
                 _outputStrings.Clear();
             }
             else if (saveChoice == SaveChoiceMethod.GoBack)
@@ -156,27 +155,43 @@ public class Program
                 Main();
             }
         }
-
-
         public static string FileNaming()
         {
             Console.WriteLine("Введите имя файла для сохранения:");
-            // Прооверяем входные данные)
-            string fileName = Console.ReadLine();
+            string fileName = Console.ReadLine().Trim();
             return fileName;
         }
-        public static void FlowSave(string fileName)
+        public static void SaveToFile(string fileName) // ХЗ как дать выбор пользователю, кроме этого костыля
         {
-            // Не должно быть строчек типо ".txt". Почитай про Magic numbers и Magic strings
-            // Подумай о том, как дать пользователю выбрать директорию записи файла 
-            using (var file = new StreamWriter(fileName + ".txt", true))
+            Console.WriteLine("Выберите папку для сохранения файла:");
+
+            var folderPath = Console.ReadLine().Trim();
+
+            if (Directory.Exists(folderPath))
             {
-                foreach (var outputString in _outputStrings)
+                var savePath = Path.Combine(folderPath, fileName + ".txt");
+
+                try
                 {
-                    file.WriteLine(outputString);
+                    using (var file = new StreamWriter(savePath, true))
+                    {
+                        foreach (var outputString in _outputStrings)
+                        {
+                            file.WriteLine(outputString);
+                        }
+                    }
+
+                    Console.WriteLine($"Файл {fileName}.txt успешно сохранен в {savePath}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Не удалось сохранить файл {fileName}: {ex.Message}");
                 }
             }
-            Console.WriteLine("Файл " + fileName + ".txt Успешно сохранён");
+            else
+            {
+                Console.WriteLine($"Папка {folderPath} не существует.");
+            }
         }
     }
     public static string GeneratePassword(User user)
@@ -225,24 +240,6 @@ public class Program
             }
         }
     }
-    //public static void SetUser()
-    //{
-    //    var user = new User { Guid = Guid.NewGuid() };
-
-    //    Console.WriteLine("Введите Имя");
-    //    user.FirstName = CheckInputLogin();
-
-    //    Console.WriteLine("Введите Фамилию");
-    //    user.LastName = CheckInputLogin();
-
-    //    user.Login = new DictionaryTranslite().BuildLogin(user.FirstName, user.LastName);
-    //    user.PasswordWithoutTranslite = new WordsGenerator().GeneratePasswordWithoutTranslite();
-    //    user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
-    //    user.PasswordWithFormatting = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
-
-    //    _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
-    //    Console.WriteLine(_outputStrings.LastOrDefault());
-    //}
     public class SetUserData
     {
         public static void SetUser()
@@ -289,5 +286,4 @@ public class Program
             return input;
         }
     }
-
 }
