@@ -2,11 +2,14 @@
 using NTextCat;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static Program;
 
 namespace GenerationPassword_v1._0
 {
@@ -101,5 +104,28 @@ namespace GenerationPassword_v1._0
             Console.WriteLine(result);
             return result;
         }
+    }
+
+    public class GeneratePasswordCommand : ICommand
+    {
+        private readonly List<string> _outputStrings;
+        public GeneratePasswordCommand(List<string> outputStrings)
+        {
+            _outputStrings = outputStrings;
+        }
+        public void Execute()
+        {
+            Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
+            int countPassword = (Int32)ValidateChoiceMethod<Program.ChoiceMethod>(Console.ReadLine());
+
+            var generatedPasswords = new List<string>();
+            for (int i = 0; i < countPassword; i++)
+            {
+                var user = new User();
+                _outputStrings.Add(GenerateUserCommand.GeneratePassword(user));
+            }
+            SaveResult.SaveResultChoice();
+        }
+
     }
 }

@@ -82,9 +82,9 @@ public class Program
                 case ChoiceMethod.GenerateUser:
                     command = new GenerateUserCommand(outputStrings);
                     break;
-                //case ChoiceMethod.GeneratePassword:
-                //    command = new GeneratePasswordCommand(outputStrings);
-                //    break;
+                case ChoiceMethod.GeneratePassword:
+                    command = new GeneratePasswordCommand(outputStrings);
+                    break;
                 default:
                     throw new NotSupportedException();
             }
