@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
-
     public enum ChoiceMethod
     {
         [Description("сгенерировать пользователя")]
@@ -70,41 +69,27 @@ public class Program
 
     public static void Main()
     {
+        var outputStrings = new List<string>();
+        ICommand command;
         while (true)
         {
-            _outputStrings.Clear();
-
             Console.WriteLine($"Выберите функцию:");
             PrintEnumValue<ChoiceMethod>();
 
             ChoiceMethod choice = CheckChoiceUsers();
-
-            // Это тоже можно зарефачить но в виде ООП. Представь, что каждое значение из енамки - команда. Это объект.
-            // У объекта метод допустим Execute(), в котором и есть вся логика этой команду
-            // И у генерации пароля и пользователя этот метод будет с одинаковым названиями, ведь они оба - команда. Это сообщает нам о родстве и необходимости использовать
-            // Либо интерфейс либо наследование. Нужно разобраться, что и зачем использовать (философская тема больше, но понимание должно быть)
-            // С.е. нужно перетащить все это в ООП, но только после того, как зарефачишь остальные места
-            if (choice == ChoiceMethod.GenerateUser)
+            switch (choice)
             {
-
-                SetUserData.SetUser();
-                SaveResult.SaveResultChoice();
-
+                case ChoiceMethod.GenerateUser:
+                    command = new GenerateUserCommand(outputStrings);
+                    break;
+                //case ChoiceMethod.GeneratePassword:
+                //    command = new GeneratePasswordCommand(outputStrings);
+                //    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (choice == ChoiceMethod.GeneratePassword)
-            {
 
-                Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
-                int countPassword = (Int32)ValidateChoiceMethod<ChoiceMethod>(Console.ReadLine());
-
-                var generatedPasswords = new List<string>();
-                for (int i = 0; i < countPassword; i++)
-                {
-                    var user = new User();
-                    _outputStrings.Add(GeneratePassword(user));
-                }
-                SaveResult.SaveResultChoice();
-            }
+            command.Execute();
         }
     }
     public class SaveResult
@@ -195,96 +180,5 @@ public class Program
         }
     }
  
-    public static string GeneratePassword(User user)
-    {
-        var wordsGenerator = new WordsGenerator();
-
-        user.PasswordWithoutTranslite = wordsGenerator.GeneratePasswordWithoutTranslite();
-        user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
-
-        var result = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
-        Console.WriteLine(result);
-        return result;
-    }
-
-    public static void ValidateLanguageLogin(string userInfo)
-    {
-        var factory = new RankedLanguageIdentifierFactory();
-        var identifier = factory.Load("Core14.profile.xml");
-        var language = identifier.Identify(userInfo).FirstOrDefault()?.Item1.Iso639_2T.ToLower();
-
-        if (language != "rus")
-        {
-            throw new Exception("Вводить необходимо на русском языке.");
-        }
-    }
-    public static string CheckInputLogin()
-    {
-        while (true)
-        {
-            try
-            {
-                string userInfo = Console.ReadLine();
-                ValidateLanguageLogin(userInfo);
-
-                if (!Regex.IsMatch(userInfo, @"^[а-яА-ЯёЁ]+$"))
-                {
-                    Console.WriteLine("Введите Имя на русском языке");
-                    continue;
-                }
-
-                return userInfo;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-    }
-    public class SetUserData
-    {
-        public static void SetUser()
-        {
-            var user = new User { Guid = Guid.NewGuid() };
-
-            user.FirstName = GetUserFirstName();
-            user.LastName = GetUserLastName();
-
-            SetUserCredentials(user);
-
-            _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
-            Console.WriteLine(_outputStrings.LastOrDefault());
-        }
-
-        private static string GetUserFirstName()
-        {
-            Console.WriteLine("Введите Имя");
-            return CheckInputLogin();
-        }
-
-        private static string GetUserLastName()
-        {
-            Console.WriteLine("Введите Фамилию");
-            return CheckInputLogin();
-        }
-
-        private static void SetUserCredentials(User user)
-        {
-            user.Login = new DictionaryTranslite().BuildLogin(user.FirstName, user.LastName);
-            user.PasswordWithoutTranslite = new WordsGenerator().GeneratePasswordWithoutTranslite();
-            user.PasswordTranslite = DictionaryTranslite.ConvertToLatin(user.PasswordWithoutTranslite);
-            user.PasswordWithFormatting = DictionaryTranslite.SplitConvertPassword(user.PasswordTranslite);
-        }
-
-        private static string CheckInputLogin()
-        {
-            string input = Console.ReadLine();
-            while (string.IsNullOrWhiteSpace(input))
-            {
-                Console.WriteLine("Пожалуйста, введите корректные данные.");
-                input = Console.ReadLine();
-            }
-            return input;
-        }
-    }
+    
 }
