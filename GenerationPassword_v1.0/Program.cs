@@ -1,10 +1,6 @@
 using GenerationPassword_v1._0;
-using GenerationPassword_v1._0.Model;
-using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
-using NTextCat;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+using System.Diagnostics.CodeAnalysis;
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
@@ -22,8 +18,6 @@ public class Program
         [Description("Вернуться назад")]
         GoBack = 2
     }
-
-
 
     public static T ValidateChoiceMethod<T>([AllowNull] string choiceString) where T : Enum
     {
@@ -179,6 +173,6 @@ public class Program
             }
         }
     }
- 
-    
+
+
 }

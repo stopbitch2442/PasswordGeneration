@@ -17,7 +17,17 @@ namespace GenerationPassword_v1._0
     {
         void Execute();
     }
+    [AttributeUsage(AttributeTargets.Class)]
+    public class CommandAttribute : Attribute
+    {
+        public Program.ChoiceMethod Command { get; set; }
 
+        public CommandAttribute(Program.ChoiceMethod command)
+        {
+            Command = command;
+        }
+    }
+    [Command(Program.ChoiceMethod.GenerateUser)]
     public class GenerateUserCommand : ICommand //a command that creates a user
     {
         private readonly List<string> _outputStrings;
@@ -105,7 +115,7 @@ namespace GenerationPassword_v1._0
             return result;
         }
     }
-
+    [Command(Program.ChoiceMethod.GeneratePassword)]
     public class GeneratePasswordCommand : ICommand
     {
         private readonly List<string> _outputStrings;
@@ -116,7 +126,7 @@ namespace GenerationPassword_v1._0
         public void Execute()
         {
             Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
-            int countPassword = (Int32)ValidateChoiceMethod<Program.ChoiceMethod>(Console.ReadLine());
+            int countPassword = Convert.ToInt32(ValidateChoiceMethod<Program.ChoiceMethod>(Console.ReadLine()));
 
             var generatedPasswords = new List<string>();
             for (int i = 0; i < countPassword; i++)
