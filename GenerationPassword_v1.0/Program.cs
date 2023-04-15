@@ -1,6 +1,8 @@
 using GenerationPassword_v1._0;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+
 public class Program
 {
     private static readonly List<string> _outputStrings = new();
@@ -60,30 +62,62 @@ public class Program
             }
         }
     }
-
+    public static IEnumerable<Type> GetTypesWithMyAttribute(Assembly assembly)
+    {
+        foreach (Type type in assembly.GetTypes())
+        {
+            if (Attribute.IsDefined(type, typeof(CommandAttribute)))
+                yield return type;
+        }
+    }
     public static void Main()
     {
         var outputStrings = new List<string>();
-        ICommand command;
         while (true)
         {
             Console.WriteLine($"Выберите функцию:");
             PrintEnumValue<ChoiceMethod>();
 
-            ChoiceMethod choice = CheckChoiceUsers();
-            switch (choice)
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            IEnumerable<Type> typesWithMyAttribute = GetTypesWithMyAttribute(assembly);
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
             {
-                case ChoiceMethod.GenerateUser:
-                    command = new GenerateUserCommand(outputStrings);
-                    break;
-                case ChoiceMethod.GeneratePassword:
-                    command = new GeneratePasswordCommand(outputStrings);
-                    break;
-                default:
-                    throw new NotSupportedException();
+                Console.WriteLine("Неверный ввод. Попробуйте еще раз.");
+                continue;
             }
 
-            command.Execute();
+            Type type = null;
+
+            switch ((ChoiceMethod)choice)
+            {
+                case ChoiceMethod.GenerateUser:
+                    type = typesWithMyAttribute.FirstOrDefault(t => t.Name == "GenerateUserCommand");
+                    break;
+                case ChoiceMethod.GeneratePassword:
+                    type = typesWithMyAttribute.FirstOrDefault(t => t.Name == "GeneratePasswordCommand");
+                    break;
+                default:
+                    Console.WriteLine($"Функция с номером {choice} не найдена. Попробуйте еще раз.");
+                    continue;
+            }
+
+            if (type != null)
+            {
+                var typeInstance = Activator.CreateInstance(type, outputStrings);
+                if (typeInstance is ICommand)
+                {
+                    ((ICommand)typeInstance).Execute();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Тип не реализует интерфейс ICommand.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Класс команды для функции {((ChoiceMethod)choice).ToString()} не найден.");
+            }
         }
     }
     public class SaveResult
@@ -140,7 +174,9 @@ public class Program
             string fileName = Console.ReadLine().Trim();
             return fileName;
         }
-        public static void SaveToFile(string fileName) // ХЗ как дать выбор пользователю, кроме этого костыля
+
+
+        public static void SaveToFile(string fileName) 
         {
             Console.WriteLine("Выберите папку для сохранения файла:");
 
