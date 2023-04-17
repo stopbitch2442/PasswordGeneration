@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using static Program;
 
 namespace GenerationPassword_v1._0
 {
@@ -20,14 +20,14 @@ namespace GenerationPassword_v1._0
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandAttribute : Attribute
     {
-        public Program.ChoiceMethod Command { get; set; }
+        public int Command { get; set; }
 
-        public CommandAttribute(Program.ChoiceMethod command)
+        public CommandAttribute(int command)
         {
             Command = command;
         }
     }
-    [Command(Program.ChoiceMethod.GenerateUser)]
+    [Command(1)]
     public class GenerateUserCommand : ICommand //a command that creates a user
     {
         private readonly List<string> _outputStrings;
@@ -47,7 +47,7 @@ namespace GenerationPassword_v1._0
 
             _outputStrings.Add($"Guid:{user.Guid}\nLogin:{user.Login}\nFirstName:{user.FirstName}\nLastName:{user.LastName}\nPassword:{user.PasswordWithFormatting}");
             Console.WriteLine(_outputStrings.LastOrDefault());
-            Program.SaveResult.SaveResultChoice();
+            SaveResult.SaveResultChoice();
         }
         public static string GetUserFirstName()
         {
@@ -115,7 +115,7 @@ namespace GenerationPassword_v1._0
             return result;
         }
     }
-    [Command(Program.ChoiceMethod.GeneratePassword)]
+    [Command(2)]
     public class GeneratePasswordCommand : ICommand
     {
         private readonly List<string> _outputStrings;
@@ -126,7 +126,7 @@ namespace GenerationPassword_v1._0
         public void Execute()
         {
             Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
-            int countPassword = Convert.ToInt32(ValidateChoiceMethod<Program.ChoiceMethod>(Console.ReadLine()));
+            int countPassword = Convert.ToInt32(ValidateChoiceMethod<ChoiceMethod>(Console.ReadLine()));
 
             var generatedPasswords = new List<string>();
             for (int i = 0; i < countPassword; i++)
@@ -138,4 +138,125 @@ namespace GenerationPassword_v1._0
         }
 
     }
+
+    [Command(1)]
+    public class SaveResult
+    {
+        public static IEnumerable<Type> GetTypesWithMyAttribute(Assembly assembly)
+        {
+            foreach (Type type in assembly.GetTypes())
+            {
+                if (type.GetCustomAttributes(typeof(CommandAttribute), true).Length > 0)
+                {
+                    yield return type;
+                }
+            }
+        }
+        public static List<int> GetAttributeValues<T>(string attributeName) where T : class
+        {
+            var attributeValues = new List<int>();
+            var fields = typeof(T).GetFields();
+
+            foreach (var field in fields)
+            {
+                var customAttribute = field.GetCustomAttributes(false).FirstOrDefault(a => a.GetType().Name == attributeName);
+                if (customAttribute != null)
+                {
+                    var value = (int)customAttribute.GetType().GetProperty("Value").GetValue(customAttribute, null);
+                    attributeValues.Add(value);
+                }
+            }
+
+            return attributeValues;
+        }
+
+        public static readonly List<string> _outputStrings = new();
+        public static void PrintSaveResultChoice()
+        {
+            Console.WriteLine("Сохранить информацию в блокнот?");
+            GetAttributeValues<SaveChoiceMethod>("Command");
+        }
+        public static SaveChoiceMethod GetUserInput()
+        {
+            string userInput = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(userInput))
+            {
+                throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
+            }
+            var saveChoice = ValidateChoiceMethod<SaveChoiceMethod>(userInput);
+            return saveChoice;
+        }
+        public static void ProcessUserChoice(SaveChoiceMethod saveChoice)
+        {
+            if (saveChoice == SaveChoiceMethod.SaveResult)
+            {
+                SaveToFile(FileNaming());
+                _outputStrings.Clear();
+            }
+            else if (saveChoice == SaveChoiceMethod.GoBack)
+            {
+                Program.Main();
+                _outputStrings.Clear();
+            }
+            else
+            {
+                throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
+            }
+        }
+        public static void SaveResultChoice()
+        {
+            PrintSaveResultChoice();
+            try
+            {
+                var saveChoice = GetUserInput();
+                ProcessUserChoice(saveChoice);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Program.Main();
+            }
+        }
+        public static string FileNaming()
+        {
+            Console.WriteLine("Введите имя файла для сохранения:");
+            string fileName = Console.ReadLine().Trim();
+            return fileName;
+        }
+
+
+        public static void SaveToFile(string fileName)
+        {
+            Console.WriteLine("Выберите папку для сохранения файла:");
+
+            var folderPath = Console.ReadLine().Trim();
+
+            if (Directory.Exists(folderPath))
+            {
+                var savePath = Path.Combine(folderPath, fileName + ".txt");
+
+                try
+                {
+                    using (var file = new StreamWriter(savePath, true))
+                    {
+                        foreach (var outputString in _outputStrings)
+                        {
+                            file.WriteLine(outputString);
+                        }
+                    }
+
+                    Console.WriteLine($"Файл {fileName}.txt успешно сохранен в {savePath}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Не удалось сохранить файл {fileName}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Папка {folderPath} не существует.");
+            }
+        }
+    }
+
 }

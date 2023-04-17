@@ -13,6 +13,11 @@ namespace GenerationPassword_v1._0.Model
 
         public static readonly ChoiceMethod GenerateUser = new ChoiceMethod { Value = 1, Description = "Сгенерировать пользователя"};
         public static readonly ChoiceMethod GeneratePassword = new ChoiceMethod { Value = 2, Description= "сгенерировать несколько паролей"};
+
+        public static explicit operator ChoiceMethod(int v)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class SaveChoiceMethod
