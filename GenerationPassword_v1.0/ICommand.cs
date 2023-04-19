@@ -119,6 +119,22 @@ namespace GenerationPassword_v1._0
     public class GeneratePasswordCommand : ICommand
     {
         private readonly List<string> _outputStrings;
+        public static T ValidateChoiceMethod<T>(SaveChoiceMethod choiceString) where T : struct
+        {
+            if (!int.TryParse(choiceString.ToString(), out int choiceInt))
+            {
+                throw new Exception("Разрешается вводить только числа");
+            }
+
+            try
+            {
+                return (T)Enum.Parse(typeof(T), choiceInt.ToString());
+            }
+            catch (Exception)
+            {
+                throw new Exception("Такого варианта еще нет в программе :(");
+            }
+        }
         public GeneratePasswordCommand(List<string> outputStrings)
         {
             _outputStrings = outputStrings;
@@ -126,7 +142,9 @@ namespace GenerationPassword_v1._0
         public void Execute()
         {
             Console.WriteLine("Введите сколько паролей необходимо сгенерировать");
-            int countPassword = Convert.ToInt32(ValidateChoiceMethod<ChoiceMethod>(Console.ReadLine()));
+            SaveChoiceMethod choice = (SaveChoiceMethod)Enum.Parse(typeof(SaveChoiceMethod), Console.ReadLine());
+
+            var countPassword = ValidateChoiceMethod<int>(choice);
 
             var generatedPasswords = new List<string>();
             for (int i = 0; i < countPassword; i++)
@@ -176,6 +194,7 @@ namespace GenerationPassword_v1._0
             Console.WriteLine("Сохранить информацию в блокнот?");
             GetAttributeValues<SaveChoiceMethod>("Command");
         }
+
         public static SaveChoiceMethod GetUserInput()
         {
             string userInput = Console.ReadLine();
@@ -183,9 +202,15 @@ namespace GenerationPassword_v1._0
             {
                 throw new ArgumentException("Выбран неверный вариант. Попробуйте еще раз.");
             }
-            var saveChoice = ValidateChoiceMethod<SaveChoiceMethod>(userInput);
+
+            if (!Enum.TryParse(userInput, out SaveChoiceMethod saveChoice))
+            {
+                throw new ArgumentException("Недопустимое значение. Пожалуйста, попробуйте еще раз.");
+            }
+
             return saveChoice;
         }
+
         public static void ProcessUserChoice(SaveChoiceMethod saveChoice)
         {
             if (saveChoice == SaveChoiceMethod.SaveResult)

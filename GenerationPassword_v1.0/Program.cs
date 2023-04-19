@@ -13,10 +13,10 @@ public class Program
         while (true)
         {
             Console.WriteLine($"Выберите функцию:");
-            PrintEnumValue<ChoiceMethod>();
+            SaveResult.GetAttributeValues<SaveChoiceMethod>("Command");
 
             Assembly assembly = Assembly.GetExecutingAssembly();
-            IEnumerable<Type> typesWithMyAttribute = GetTypesWithMyAttribute(assembly);
+            IEnumerable<Type> typesWithMyAttribute = SaveResult.GetTypesWithMyAttribute(assembly);
 
             if (!int.TryParse(Console.ReadLine(), out int choice))
             {
